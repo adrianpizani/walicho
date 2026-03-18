@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+GeoAlchemy2
+psycopg2-binary
+pandas
+openpyxl
+pydantic[email]
+shapely # Added for GeoJSON processing
+python-multipart # Required for FastAPI form data (file uploads)

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # --- Servicio 1: La Base de Datos (PostGIS) ---
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: pba_db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: pba_dashboard
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck: # Opcional: para que otros servicios esperen a que esté lista
+      test: ["CMD-SHELL", "pg_isready -U root -d pba_dashboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- Servicio 2: El Backend (FastAPI) ---
+  backend:
+    build: ./backend
+    container_name: pba_backend
+    ports:
+      - "8000:8000" 
+    volumes:
+      - ./backend/app:/app
+      - ./frontend/public:/app/static 
+    depends_on:
+      db: 
+        condition: service_healthy
+
+  # --- Servicio 4: Ejemplo de Microservicio (Cache) ---
+  redis:
+    image: redis:7-alpine
+    container_name: pba_cache
+    ports:
+      - "6380:6379"
+
+volumes:
+  postgres_data:
